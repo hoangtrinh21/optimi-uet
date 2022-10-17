@@ -5,8 +5,8 @@ import com.uet.hoangtrinh.GaApplication;
 import java.util.Arrays;
 
 public class Entity {
-    private int content[];
-    private int score;
+    private int content[]; // Quãng đường đi
+    private int score; // Điểm đánh giá
 
     public Entity() {
     }

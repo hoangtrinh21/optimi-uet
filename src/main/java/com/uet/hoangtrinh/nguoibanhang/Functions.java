@@ -41,17 +41,17 @@ public class Functions {
      * sau đó sắp xếp các nghiệm theo điẻm đánh giá từ thấp đến cao.
      * Điểm đánh giá tính bằng tổng khoảng cách 2 điểm liền kề trong 1 nghiệm.
      */
-    public void rating() {
+    public void rated() {
         int scoreTmp;
         for (int i = 0; i < GaApplication.NUMBER_IN_GROUP; i++) {
-            scoreTmp = 0; // Điểm đánh giá của quần thể thứ i
+            scoreTmp = 0; // Điểm đánh giá của nghiệm thứ i
             // Tính điểm đánh giá
             for (int j = 0; j < GaApplication.amountNode - 1; j++) {
                 scoreTmp += MAP[GaApplication.group.get(i).getContent()[j]]
                                                 [GaApplication.group.get(i).getContent()[j + 1]];
             }
             // TH nghiệm có 2 điểm trùng nhau có điểm đánh giá cộng thêm x vào điểm đánh giá
-            // x = Tổng số điểm trong bài toán * khoảng cách lớn nhất giwuax 2 điểm * 2
+            // x = Tổng số điểm trong bài toán * khoảng cách lớn nhất giữa 2 điểm * 2
             for(int j = 0; j < GaApplication.amountNode - 1; j++) {
                 for (int t = j + 1; t < GaApplication.amountNode; t++)
                     if (GaApplication.group.get(i).getContent()[j] == GaApplication.group.get(i).getContent()[t] &&
@@ -59,30 +59,33 @@ public class Functions {
                         scoreTmp += GaApplication.amountNode * GaApplication.distanceMax * 2;
                     }
             }
-            GaApplication.group.get(i).setScore(scoreTmp);
+            GaApplication.group.get(i).setScore(scoreTmp); // Gán điểm đánh giá cho nghiệm thứ i
         }
         sortGroup(GaApplication.group); // Sắp xếp danh sách nghiệm theo điểm đánh giá thấp -> cao
     }
 
     /**
-     * Chọn các nghiệm có điểm đánh giá thấp
+     * Chọn các nghiệm có điểm đánh giá thấp,
+     * nhân bản các nghiệm đó tạo ra quần thể có với số nghiệm bằng với ban đầu
      */
     public void selected() {
-        int nguongIndex = (int) (GaApplication.NUMBER_IN_GROUP * 50.0/100);
-        for (int i = nguongIndex; i < GaApplication.NUMBER_IN_GROUP; i++) {
-                GaApplication.group.set(i, new Entity(GaApplication.group.get(ThreadLocalRandom.current().nextInt(nguongIndex))));
+        int thresholeIndex = (int) (GaApplication.NUMBER_IN_GROUP * 50.0/100);
+        for (int i = thresholeIndex; i < GaApplication.NUMBER_IN_GROUP; i++) { // Nhân bản nghiệm
+                GaApplication.group.set(i,
+                        new Entity(GaApplication.group.get(ThreadLocalRandom.current().nextInt(thresholeIndex))));
         }
         sortGroup(GaApplication.group); // Sắp xếp danh sách nghiệm theo điểm đánh giá thấp -> cao
     }
 
     /**
-     * Lai ghép hai nghiệm
+     * Lai ghép hai nghiệm,
+     * nhân bản các nghiệm đó tạo ra quần thể có với số nghiệm bằng với ban đầu
      */
     public void crossover() {
-        for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 20.0/100; i++){
+        for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 25.0/100; i++){
             int father = ThreadLocalRandom.current().nextInt(GaApplication.NUMBER_IN_GROUP);
             int mother = ThreadLocalRandom.current().nextInt(GaApplication.NUMBER_IN_GROUP);
-            for (int j = 0; j < GaApplication.amountNode; j++)
+            for (int j = 0; j < GaApplication.amountNode; j++) // Lai ghép
                 if (ThreadLocalRandom.current().nextInt(2) == 1) {
                     int temp = GaApplication.group.get(father).getContent()[j];
                     GaApplication.group.get(father).getContent()[j] = GaApplication.group.get(mother).getContent()[j];
@@ -96,14 +99,18 @@ public class Functions {
      * Biến dị các nghiệm
      */
     public void mutation() {
-        for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 0.2; i++) {
+        for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 0.3; i++) {
             int index = ThreadLocalRandom.current().nextInt(GaApplication.NUMBER_IN_GROUP);
             int bit = ThreadLocalRandom.current().nextInt(GaApplication.amountNode);
-            GaApplication.group.get(index).getContent()[bit] = ThreadLocalRandom.current().nextInt(GaApplication.amountNode);
+            GaApplication.group.get(index).getContent()[bit] = // Đột biến nghiệm
+                    ThreadLocalRandom.current().nextInt(GaApplication.amountNode);
         }
         sortGroup(GaApplication.group); // Sắp xếp danh sách nghiệm theo điểm đánh giá thấp -> cao
     }
 
+    public int sccoreRepeat(int scorePre, int score, int count) {
+        return scorePre == score ? ++count : 1;
+    }
 
     /**
      * Kiểm tra điều kiện dừng. Nghiệm có tạo thành đồ thị liên thông không
@@ -111,9 +118,11 @@ public class Functions {
      */
     public boolean canStop() {
         for (int j = 0; j < GaApplication.amountNode - 1; j++)
-            if (GaApplication.MAP[GaApplication.group.get(0).getContent()[j]][GaApplication.group.get(0).getContent()[j + 1]] > 10) {
+            if (GaApplication.MAP[GaApplication.group.get(0).getContent()[j]]
+                    [GaApplication.group.get(0).getContent()[j + 1]] > 10) {
                 System.out.println(j + "-" + (j + 1) + ": " +
-                        GaApplication.MAP[GaApplication.group.get(0).getContent()[j]][GaApplication.group.get(0).getContent()[j + 1]]);
+                        GaApplication.MAP[GaApplication.group.get(0).getContent()[j]]
+                                [GaApplication.group.get(0).getContent()[j + 1]]);
                 System.out.println(GaApplication.group.get(0).getScore());
                 return false;
             }
