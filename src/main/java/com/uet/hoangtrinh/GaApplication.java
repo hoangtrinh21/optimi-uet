@@ -12,8 +12,8 @@ import java.util.List;
 /**
  * @author: TrinhHoang - UET
  * @description: Ứng dụng thuật toán di truyền vào giải bài toán "Người bán hàng"
- *              Bài toán: Cho trước một danh sách các thành phố và khoảng cách giữa chúng,
- *                        tìm chu trình ngắn nhất thăm mỗi thành phố đúng một lần
+ * Bài toán: Cho trước một danh sách các thành phố và khoảng cách giữa chúng,
+ *           tìm chu trình ngắn nhất thăm mỗi thành phố đúng một lần
  */
 public class GaApplication {
     public static final int     distanceMax     = 10; // khoang cach lon nhat giua 2 thanh pho
@@ -36,20 +36,22 @@ public class GaApplication {
         functions.createGroup(); // khoi tao quan the ngau nhien
         int i = 0;
         while (true) {
-            // start: điều kiện dừng
-            if (functions.canStop() && i > 1000) break;
-            // end: điều kiện dừng
-
+            System.out.println("Running...");
             functions.rating(); // danh gia
+            // start: điều kiện dừng
+//            if (i == 1) break;
+            if (i > 5000 && functions.canStop()) {
+                break;
+            }
+            // end: điều kiện dừng
             functions.selected(); // chon loc
             functions.crossover(); // di truyen
             functions.mutation(); // bien di
-
             i++;
         }
         // end: GA
         // print nghiem
-        System.out.println(group.get(0).getScore() / (i + 1)  + ": " + Arrays.toString(group.get(0).getContent()));
-        System.out.println(CreateArray.check(group.get(0), GRAPH, i));
+        System.out.println(group.get(0).getScore()  + ": " + Arrays.toString(group.get(0).getContent()));
+        CreateArray.check(group.get(0), MAP);
     }
 }

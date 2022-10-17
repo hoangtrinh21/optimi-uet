@@ -9,6 +9,10 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class CreateArray {
+    /**
+     * Tạo đồ thị ngẫu nhiên
+     * @return
+     */
     public static MutableValueGraph<Integer, Integer> createGraph() {
         MutableValueGraph<Integer, Integer> graph = ValueGraphBuilder.undirected().build();
 
@@ -26,31 +30,43 @@ public class CreateArray {
         return graph;
     }
 
+    /**
+     * Tạo mảng ngẫu nhiên
+     * @param graph
+     * @return
+     */
     public static int[][] run(MutableValueGraph<Integer, Integer> graph) {
         int maxValue = GaApplication.amountNode * GaApplication.distanceMax * 2;
-//        MutableValueGraph<Integer, Integer> graph = createGraph();
 
         List<Integer> listNode = graph.nodes().stream().collect(Collectors.toList());
         int[][] g = new int[GaApplication.amountNode][GaApplication.amountNode];
         for (int i = 0; i < GaApplication.amountNode; i++) {
             for (int j = 0; j < GaApplication.amountNode; j++) {
-                if (i == j && !graph.hasEdgeConnecting(listNode.get(i), listNode.get(j))) g[i][j] = maxValue;
+                if (i == j || !graph.hasEdgeConnecting(listNode.get(i), listNode.get(j))) g[i][j] = maxValue;
 
                 if (graph.hasEdgeConnecting(listNode.get(i), listNode.get(j))) {
                     g[i][j] = graph.edgeValue(listNode.get(i), listNode.get(j)).get();
-                } else g[i][j] = maxValue;
+                }
+                System.out.printf("%4d|",g[i][j]);
             }
+            System.out.println();
         }
         return g;
     }
 
-    public static boolean check(Entity entity, MutableValueGraph<Integer, Integer> graph, int t) {
+
+    public static  void check(Entity entity, int[][] map) {
         int tmp = 0;
         for (int i = 0; i < 49; i++) {
-            tmp += graph.edgeValue(entity.getContent()[i], entity.getContent()[i + 1]).get();
+            tmp += (map[entity.getContent()[i]][entity.getContent()[i+1]]);
+        }
+
+        for(int j = 0; j < GaApplication.amountNode - 1; j++) {
+            for (int k = j + 1; k < GaApplication.amountNode; k++)
+                if (entity.getContent()[j] == entity.getContent()[k] && k != j + 1) {
+                    tmp += GaApplication.amountNode * GaApplication.distanceMax * 2;
+                }
         }
         System.out.println(tmp);
-        System.out.println(entity.getScore() / (t + 1));
-        return tmp == entity.getScore() / (t + 1);
     }
 }

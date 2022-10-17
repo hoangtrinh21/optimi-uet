@@ -5,6 +5,8 @@ import com.uet.hoangtrinh.GaApplication;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.uet.hoangtrinh.GaApplication.MAP;
+
 /**
  * @author: TrinhHoang - UET
  * @description: Thuật toán di truyền (Genetic Algorithm–GA) và các hàm sử dụng.
@@ -45,25 +47,25 @@ public class Functions {
             scoreTmp = 0; // Điểm đánh giá của quần thể thứ i
             // Tính điểm đánh giá
             for (int j = 0; j < GaApplication.amountNode - 1; j++) {
-                scoreTmp += GaApplication.MAP[GaApplication.group.get(i).getContent()[j]]
-                            [GaApplication.group.get(i).getContent()[j + 1]];
-                GaApplication.group.get(i).setScore(scoreTmp);
+                scoreTmp += MAP[GaApplication.group.get(i).getContent()[j]]
+                                                [GaApplication.group.get(i).getContent()[j + 1]];
             }
             // TH nghiệm có 2 điểm trùng nhau có điểm đánh giá cộng thêm x vào điểm đánh giá
             // x = Tổng số điểm trong bài toán * khoảng cách lớn nhất giwuax 2 điểm * 2
             for(int j = 0; j < GaApplication.amountNode - 1; j++) {
                 for (int t = j + 1; t < GaApplication.amountNode; t++)
-                    if (GaApplication.group.get(i).getContent()[j] == GaApplication.group.get(i).getContent()[t]) {
+                    if (GaApplication.group.get(i).getContent()[j] == GaApplication.group.get(i).getContent()[t] &&
+                        t != j + 1) {
                         scoreTmp += GaApplication.amountNode * GaApplication.distanceMax * 2;
-                        GaApplication.group.get(i).setScore(scoreTmp);
                     }
             }
+            GaApplication.group.get(i).setScore(scoreTmp);
         }
         sortGroup(GaApplication.group); // Sắp xếp danh sách nghiệm theo điểm đánh giá thấp -> cao
     }
 
     /**
-     * Chọn các có
+     * Chọn các nghiệm có điểm đánh giá thấp
      */
     public void selected() {
         int nguongIndex = (int) (GaApplication.NUMBER_IN_GROUP * 50.0/100);
@@ -73,6 +75,9 @@ public class Functions {
         sortGroup(GaApplication.group); // Sắp xếp danh sách nghiệm theo điểm đánh giá thấp -> cao
     }
 
+    /**
+     * Lai ghép hai nghiệm
+     */
     public void crossover() {
         for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 20.0/100; i++){
             int father = ThreadLocalRandom.current().nextInt(GaApplication.NUMBER_IN_GROUP);
@@ -87,8 +92,11 @@ public class Functions {
         sortGroup(GaApplication.group); // Sắp xếp danh sách nghiệm theo điểm đánh giá thấp -> cao
     }
 
+    /**
+     * Biến dị các nghiệm
+     */
     public void mutation() {
-        for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 20/100.0; i++) {
+        for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 0.2; i++) {
             int index = ThreadLocalRandom.current().nextInt(GaApplication.NUMBER_IN_GROUP);
             int bit = ThreadLocalRandom.current().nextInt(GaApplication.amountNode);
             GaApplication.group.get(index).getContent()[bit] = ThreadLocalRandom.current().nextInt(GaApplication.amountNode);
@@ -96,12 +104,19 @@ public class Functions {
         sortGroup(GaApplication.group); // Sắp xếp danh sách nghiệm theo điểm đánh giá thấp -> cao
     }
 
+
+    /**
+     * Kiểm tra điều kiện dừng. Nghiệm có tạo thành đồ thị liên thông không
+     * @return
+     */
     public boolean canStop() {
         for (int j = 0; j < GaApplication.amountNode - 1; j++)
-            if (!GaApplication.GRAPH.
-                    hasEdgeConnecting(GaApplication.group.get(0).getContent()[j],
-                            GaApplication.group.get(0).getContent()[j + 1]))
+            if (GaApplication.MAP[GaApplication.group.get(0).getContent()[j]][GaApplication.group.get(0).getContent()[j + 1]] > 10) {
+                System.out.println(j + "-" + (j + 1) + ": " +
+                        GaApplication.MAP[GaApplication.group.get(0).getContent()[j]][GaApplication.group.get(0).getContent()[j + 1]]);
+                System.out.println(GaApplication.group.get(0).getScore());
                 return false;
+            }
         return true;
     }
 
