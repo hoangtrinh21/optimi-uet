@@ -4,6 +4,7 @@ import com.google.common.graph.*;
 import com.uet.hoangtrinh.GaApplication;
 import com.uet.hoangtrinh.nguoibanhang.Entity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 public class CreateArray {
     /**
      * Tạo đồ thị ngẫu nhiên
-     * @return
+     * @return MutableValueGraph
      */
     public static MutableValueGraph<Integer, Integer> createGraph() {
         MutableValueGraph<Integer, Integer> graph = ValueGraphBuilder.undirected().build();
@@ -32,13 +33,13 @@ public class CreateArray {
 
     /**
      * Tạo mảng ngẫu nhiên
-     * @param graph
-     * @return
+     * @param graph đồ thị tạo ngãu nhiên
+     * @return mảng int 2 chiều
      */
     public static int[][] run(MutableValueGraph<Integer, Integer> graph) {
         int maxValue = GaApplication.amountNode * GaApplication.distanceMax * 2;
 
-        List<Integer> listNode = graph.nodes().stream().collect(Collectors.toList());
+        List<Integer> listNode = new ArrayList<>(graph.nodes());
         int[][] g = new int[GaApplication.amountNode][GaApplication.amountNode];
         for (int i = 0; i < GaApplication.amountNode; i++) {
             for (int j = 0; j < GaApplication.amountNode; j++) {

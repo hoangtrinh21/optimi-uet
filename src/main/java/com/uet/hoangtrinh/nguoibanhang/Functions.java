@@ -4,6 +4,7 @@ import com.uet.hoangtrinh.GaApplication;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static com.uet.hoangtrinh.GaApplication.MAP;
 
@@ -14,13 +15,13 @@ import static com.uet.hoangtrinh.GaApplication.MAP;
 public class Functions {
     /**
      * Tạo Ngẫu nhiên một mảng.
-     * @param n Só diểm trong 1 nghiệm
+     *
      * @return Mảng các diểm ngẫu nhiên
      */
-    private int[] randomContent(int n) {
-        int res[] = new int[n];
-        for (int i = 0; i < n; i++) {
-            res[i] = ThreadLocalRandom.current().nextInt(n);
+    private int[] randomContent() {
+        int[] res = new int[GaApplication.amountNode];
+        for (int i = 0; i < GaApplication.amountNode; i++) {
+            res[i] = ThreadLocalRandom.current().nextInt(GaApplication.amountNode);
         }
         return res;
     }
@@ -31,7 +32,7 @@ public class Functions {
     public void createGroup() {
         Entity entityTmp;
         for (int i = 0; i < GaApplication.NUMBER_IN_GROUP; i++) {
-            entityTmp = new Entity(randomContent(GaApplication.amountNode));
+            entityTmp = new Entity(randomContent());
             GaApplication.group.add(entityTmp);
         }
     }
@@ -72,7 +73,9 @@ public class Functions {
         int thresholeIndex = (int) (GaApplication.NUMBER_IN_GROUP * 50.0/100);
         for (int i = thresholeIndex; i < GaApplication.NUMBER_IN_GROUP; i++) { // Nhân bản nghiệm
                 GaApplication.group.set(i,
-                        new Entity(GaApplication.group.get(ThreadLocalRandom.current().nextInt(thresholeIndex))));
+                        new Entity(GaApplication.group
+                                .get(ThreadLocalRandom.current()
+                                        .nextInt(thresholeIndex / 2 + thresholeIndex / 3))));
         }
         sortGroup(GaApplication.group); // Sắp xếp danh sách nghiệm theo điểm đánh giá thấp -> cao
     }
@@ -99,7 +102,7 @@ public class Functions {
      * Biến dị các nghiệm
      */
     public void mutation() {
-        for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 0.3; i++) {
+        for (int i = 0; i < GaApplication.NUMBER_IN_GROUP * 0.25; i++) {
             int index = ThreadLocalRandom.current().nextInt(GaApplication.NUMBER_IN_GROUP);
             int bit = ThreadLocalRandom.current().nextInt(GaApplication.amountNode);
             GaApplication.group.get(index).getContent()[bit] = // Đột biến nghiệm
@@ -113,20 +116,30 @@ public class Functions {
     }
 
     /**
-     * Kiểm tra điều kiện dừng. Nghiệm có tạo thành đồ thị liên thông không
-     * @return
+     * Kiểm tra đồ thị có liên thông không. Nghiệm đầu tiên có tạo thành đồ thị liên thông không
+     * @return true khi nghiệm đầu tiên tạo thành đồ thị liên thông, false khi ngược lại
      */
-    public boolean canStop() {
-        for (int j = 0; j < GaApplication.amountNode - 1; j++)
-            if (GaApplication.MAP[GaApplication.group.get(0).getContent()[j]]
-                    [GaApplication.group.get(0).getContent()[j + 1]] > 10) {
-                System.out.println(j + "-" + (j + 1) + ": " +
-                        GaApplication.MAP[GaApplication.group.get(0).getContent()[j]]
-                                [GaApplication.group.get(0).getContent()[j + 1]]);
-                System.out.println(GaApplication.group.get(0).getScore());
-                return false;
-            }
-        return true;
+    public boolean isConnectedGraph() {
+        return GaApplication.group.get(0).getScore() <= 5000;
+    }
+
+    /**
+     * Giảm số lượng nghiệm trong quần thể
+     * @param i số lần đã lặp
+     * @param threshold ngưỡng
+     * @param countReduce số lần đã giảm
+     * @param count số lần điểm đánh giá lặp lại liên tiếp
+     */
+    public void reduceGroup(int i, int threshold, int countReduce, int count) {
+        if ((i == threshold || i == threshold / 2 || count == threshold ||
+                i == threshold * 2 || count == threshold / 2) && countReduce < 4) {
+            GaApplication.group =
+                    GaApplication.group.stream()
+                            .limit((long) (GaApplication.NUMBER_IN_GROUP * 0.8))
+                            .collect(Collectors.toList());
+            GaApplication.NUMBER_IN_GROUP = (int) (GaApplication.NUMBER_IN_GROUP * 0.8);
+            countReduce++;
+        }
     }
 
     /**
